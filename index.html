@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Arthur, bút danh Long Quân</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #dcd8cb;
+            --ink: #1d1c1a;
+            --mist: #a7aca5;
+            --slate: #66787a;
+            --seal: #a8322b
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0
+        }
+
+        html,
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Noto Serif", Georgia, serif
+        }
+
+        body {
+            height: 700vh
+        }
+
+        .stage {
+            position: fixed;
+            inset: 0;
+            overflow: hidden
+        }
+
+        .layer {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 100%;
+            will-change: transform
+        }
+
+        .layer svg {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 100%;
+            width: 100%
+        }
+
+        .sun {
+            position: absolute;
+            top: 12%;
+            right: 14%;
+            width: min(16vw, 120px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: var(--seal);
+            opacity: .82;
+            filter: blur(1.5px)
+        }
+
+        .hero {
+            position: fixed;
+            top: 18%;
+            left: 5vw;
+            z-index: 3;
+            pointer-events: none;
+            transition: opacity .6s
+        }
+
+        .hero h1 {
+            writing-mode: vertical-rl;
+            font-size: clamp(28px, 5vw, 54px);
+            font-weight: 700;
+            letter-spacing: .12em;
+            line-height: 1.3
+        }
+
+        .hero p {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #3b3a37;
+            max-width: 22ch
+        }
+
+        .hero.gone {
+            opacity: 0
+        }
+
+        .walker {
+            position: fixed;
+            left: 30vw;
+            bottom: 15%;
+            width: 56px;
+            height: 96px;
+            z-index: 4;
+            transform: translateX(-50%)
+        }
+
+        .walker svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible
+        }
+
+        .walker .legL,
+        .walker .legR {
+            transform-origin: 28px 62px
+        }
+
+        .walker.walk .legL {
+            animation: step .5s ease-in-out infinite
+        }
+
+        .walker.walk .legR {
+            animation: step .5s ease-in-out infinite reverse
+        }
+
+        .walker.walk svg {
+            animation: bob .5s ease-in-out infinite
+        }
+
+        .walker.back svg {
+            transform: scaleX(-1)
+        }
+
+        @keyframes step {
+
+            0%,
+            100% {
+                transform: rotate(-18deg)
+            }
+
+            50% {
+                transform: rotate(18deg)
+            }
+        }
+
+        @keyframes bob {
+
+            0%,
+            100% {
+                translate: 0 0
+            }
+
+            50% {
+                translate: 0 -3px
+            }
+        }
+
+        .card {
+            position: fixed;
+            z-index: 5;
+            left: calc(30vw + 60px);
+            top: 22%;
+            width: min(420px, calc(70vw - 90px));
+            padding: 22px 24px 24px;
+            background: rgba(232, 228, 216, .93);
+            border: 1px solid var(--ink);
+            border-radius: 2px;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity .35s, transform .35s;
+            pointer-events: none
+        }
+
+        .card.on {
+            opacity: 1;
+            transform: none;
+            pointer-events: auto
+        }
+
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 10px
+        }
+
+        .card p,
+        .card li {
+            font-size: 15px;
+            line-height: 1.75
+        }
+
+        .card ul {
+            padding-left: 18px
+        }
+
+        .card .tag {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--seal);
+            font-style: italic
+        }
+
+        .seal {
+            position: absolute;
+            top: -14px;
+            right: 16px;
+            width: 34px;
+            height: 34px;
+            background: var(--seal);
+            color: #eee;
+            font-size: 11px;
+            line-height: 1.05;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            border-radius: 2px;
+            transform: rotate(3deg)
+        }
+
+        .trail {
+            position: fixed;
+            z-index: 6;
+            left: 5vw;
+            right: 5vw;
+            bottom: 3.5%;
+            height: 26px;
+            display: flex;
+            align-items: center
+        }
+
+        .trail::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--ink);
+            opacity: .35
+        }
+
+        .trail i {
+            position: absolute;
+            height: 2px;
+            left: 0;
+            background: var(--seal);
+            width: 0
+        }
+
+        .trail button {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            margin-left: -7px;
+            border-radius: 50%;
+            border: 1px solid var(--ink);
+            background: var(--paper);
+            cursor: pointer;
+            padding: 0
+        }
+
+        .trail button.on {
+            background: var(--seal);
+            border-color: var(--seal)
+        }
+
+        .trail button:focus-visible,
+        .quick:focus-visible,
+        .close:focus-visible {
+            outline: 2px solid var(--seal);
+            outline-offset: 3px
+        }
+
+        .quick {
+            position: fixed;
+            z-index: 7;
+            top: 16px;
+            right: 16px;
+            font: inherit;
+            font-size: 13px;
+            padding: 8px 14px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 0;
+            border-radius: 2px;
+            cursor: pointer
+        }
+
+        .hint {
+            position: fixed;
+            z-index: 6;
+            left: 50%;
+            bottom: 9%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            color: #3b3a37;
+            font-style: italic;
+            transition: opacity .6s;
+            white-space: nowrap
+        }
+
+        .hint.gone {
+            opacity: 0
+        }
+
+        .sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 9;
+            background: var(--paper);
+            overflow: auto;
+            padding: 8vh 6vw;
+            display: none
+        }
+
+        .sheet.on {
+            display: block
+        }
+
+        .sheet .in {
+            max-width: 64ch;
+            margin: 0 auto
+        }
+
+        .sheet h2 {
+            font-size: 26px;
+            margin-bottom: 6px
+        }
+
+        .sheet h3 {
+            font-size: 17px;
+            margin: 26px 0 6px
+        }
+
+        .sheet p,
+        .sheet li {
+            line-height: 1.8;
+            font-size: 16px
+        }
+
+        .sheet ul {
+            padding-left: 20px
+        }
+
+        .close {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            font: inherit;
+            font-size: 13px;
+            padding: 8px 14px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 0;
+            border-radius: 2px;
+            cursor: pointer
+        }
+
+        .todo {
+            color: var(--seal);
+            font-style: italic
+        }
+
+        @media(max-width:640px) {
+            .card {
+                left: 5vw;
+                right: 5vw;
+                width: auto;
+                top: auto;
+                bottom: 16%
+            }
+
+            .hero h1 {
+                font-size: 30px
+            }
+
+            .hint {
+                bottom: 11%
+            }
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+
+            .walker.walk svg,
+            .walker.walk .legL,
+            .walker.walk .legR {
+                animation: none
+            }
+
+            .card {
+                transition: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stage" id="stage" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="layer" data-s=".25" id="far"></div>
+        <div class="layer" data-s=".55" id="mid"></div>
+        <div class="layer" data-s="1" id="near"></div>
+    </div>
+
+    <div class="hero" id="hero">
+        <h1>Long Quân</h1>
+        <p>Arthur. Kiến trúc sư giải pháp, họa sĩ thủy mặc.</p>
+    </div>
+
+    <div class="walker" id="walker" aria-hidden="true">
+        <svg viewBox="0 0 56 96">
+            <g fill="#1d1c1a" stroke="#1d1c1a" stroke-linecap="round">
+                <path d="M6 30 L28 6 L50 30 Q28 24 6 30Z" stroke="none" />
+                <circle cx="28" cy="36" r="7" stroke="none" />
+                <path d="M14 46 Q28 40 42 46 L46 66 Q28 72 10 66Z" stroke="none" />
+                <path class="legL" d="M28 62 L28 92" fill="none" stroke-width="4" />
+                <path class="legR" d="M28 62 L28 92" fill="none" stroke-width="4" />
+                <path d="M48 26 L48 92" fill="none" stroke-width="2.5" />
+            </g>
+        </svg>
+    </div>
+
+    <article class="card" id="card" role="region" aria-live="polite">
+        <div class="seal" id="seal"></div>
+        <h2 id="cTitle"></h2>
+        <div id="cBody"></div>
+    </article>
+
+    <div class="trail" id="trail"><i id="fill"></i></div>
+    <p class="hint" id="hint">Cuộn chuột, vuốt hoặc dùng phím mũi tên để dẫn người lữ khách đi.</p>
+    <button class="quick" id="quick">Xem resume nhanh</button>
+
+    <section class="sheet" id="sheet" aria-label="Resume nhanh">
+        <button class="close" id="close">Đóng</button>
+        <div class="in">
+            <h2>Arthur (bút danh Long Quân)</h2>
+            <p>Senior Application Architect và Solution Architect, hơn 10 năm kinh nghiệm. Sống tại Thành phố Hồ Chí
+                Minh.</p>
+            <h3>Chuyên môn</h3>
+            <ul>
+                <li>Hệ thống phân tán, kiến trúc hướng sự kiện</li>
+                <li>GCP, Kafka, microservices</li>
+                <li>Nền tảng logistics và chuỗi cung ứng</li>
+            </ul>
+            <h3>Kinh nghiệm</h3>
+            <p class="todo">Thêm các vai trò, công ty, thời gian và thành tựu thật của bạn tại đây.</p>
+            <h3>Thư họa</h3>
+            <p>Vẽ thủy mặc (thiền họa) và làm thơ cổ điển, kết hợp tranh, thư pháp và thơ Hán Việt trong cùng một tác
+                phẩm.</p>
+            <h3>Liên hệ</h3>
+            <p class="todo">Thêm email, LinkedIn, GitHub.</p>
+        </div>
+    </section>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const STATIONS = [
+            { p: .04, t: "Khởi hành", seal: "Long<br>Quân", b: "<p>Arthur, bút danh Long Quân. Hơn mười năm dựng kiến trúc cho những hệ thống lớn, và song song đó là con đường của bút và mực.</p><p class='tag'>Người lữ khách đi về phía trước, bạn cuộn để đi cùng.</p>" },
+            { p: .27, t: "Núi: hành trình nghề", seal: "Nghề", b: "<p>Senior Application Architect và Solution Architect, hơn 10 năm kinh nghiệm, làm việc tại Thành phố Hồ Chí Minh.</p><p class='tag' style='color:#a8322b'>Thêm mốc công ty, vai trò và thành tựu thật của bạn ở đây.</p>" },
+            { p: .5, t: "Sông: nghề kiến trúc", seal: "Kỹ", b: "<ul><li>Hệ thống phân tán</li><li>Kiến trúc hướng sự kiện</li><li>GCP, Kafka, microservices</li><li>Nền tảng logistics và chuỗi cung ứng</li></ul>" },
+            { p: .74, t: "Am thất: thư họa", seal: "Họa", b: "<p>Thủy mặc và thiền họa, kết hợp tranh, thư pháp và thơ Hán Việt trong cùng một tác phẩm. Thể thơ quen thuộc: thất ngôn tứ tuyệt, lục bát, cổ phong.</p><p class='tag'>Chỗ này sau sẽ đặt ảnh tranh thật của bạn.</p>" },
+            { p: .95, t: "Bến cuối: liên hệ", seal: "Duyên", b: "<p class='todo'>Thêm email, LinkedIn, GitHub của bạn.</p>" }
+        ];
+        let W, H, WORLD, prog = 0;
+        const layers = [...document.querySelectorAll('.layer')];
+        function rnd(s) { return () => { s = (s * 16807) % 2147483647; return s / 2147483647 } }
+        function ridge(w, h, base, amp, seed, fill, op, blur) {
+            const r = rnd(seed); let d = `M0 ${h}L0 ${h * base}`, x = 0;
+            while (x < w) { x += 60 + r() * 140; const y = h * base - amp * (.2 + r() * .8); d += `Q${x - 40} ${y - amp * .2} ${x} ${y + r() * amp * .3}` }
+            d += `L${w} ${h}Z`;
+            return `<path d="${d}" fill="${fill}" opacity="${op}" filter="url(#ink${blur})"/>`;
+        }
+        function build() {
+            W = innerWidth; H = innerHeight; WORLD = Math.max(W * 6, 4200);
+            const defs = `<defs><filter id="ink0"><feTurbulence baseFrequency=".02" numOctaves="3" seed="3"/><feDisplacementMap in="SourceGraphic" scale="14"/></filter><filter id="ink1"><feTurbulence baseFrequency=".03" numOctaves="2" seed="8"/><feDisplacementMap in="SourceGraphic" scale="8"/><feGaussianBlur stdDeviation="1.2"/></filter></defs>`;
+            const cfg = [["far", .25, .42, H * .34, 11, "#a7aca5", .7, 0], ["mid", .55, .6, H * .3, 23, "#66787a", .6, 1], ["near", 1, .86, H * .06, 41, "#1d1c1a", .9, 1]];
+            cfg.forEach(([id, s, base, amp, seed, fill, op, b]) => {
+                const w = W + (WORLD - W) * s; const el = $(id); el.style.width = w + "px";
+                let inner = ridge(w, H, base, amp, seed, fill, op, b);
+                if (id === "mid") inner += ridge(w, H, .72, H * .14, seed + 5, "#8a9695", .5, 1);
+                if (id === "near") {
+                    STATIONS.forEach(st => { const x = st.p * (WORLD - W) + W * .3; inner += marker(st, x) });
+                }
+                el.innerHTML = `<svg viewBox="0 0 ${w} ${H}" preserveAspectRatio="none" width="${w}" height="${H}">${defs}${inner}</svg>`;
+                el.firstChild.style.width = w + "px";
+            });
+            $("trail").querySelectorAll("button").forEach(b => b.remove());
+            STATIONS.forEach((st, i) => { const b = document.createElement("button"); b.style.left = st.p * 100 + "%"; b.setAttribute("aria-label", st.t); b.onclick = () => go(st.p); $("trail").appendChild(b) });
+            update();
+        }
+        function marker(st, x) {
+            const g = H * .86, i = STATIONS.indexOf(st);
+            const shapes = [
+                `<path d="M${x - 60} ${g} L${x} ${g - 90} L${x + 60} ${g}Z" fill="#1d1c1a"/>`,
+                `<path d="M${x - 70} ${g - 10} Q${x} ${g + 18} ${x + 70} ${g - 10}Z" fill="#1d1c1a"/><path d="M${x} ${g - 10}V${g - 80}" stroke="#1d1c1a" stroke-width="3"/>`,
+                `<path d="M${x - 60} ${g - 6} h120 M${x - 46} ${g - 6} v-56 M${x + 46} ${g - 6} v-56 M${x - 66} ${g - 62} Q${x} ${g - 100} ${x + 66} ${g - 62}Z" stroke="#1d1c1a" stroke-width="4" fill="#1d1c1a"/>`,
+                `<path d="M${x - 52} ${g} v-70 M${x + 52} ${g} v-70 M${x - 64} ${g - 70} h128 M${x - 56} ${g - 84} h112" stroke="#1d1c1a" stroke-width="6" fill="none"/>`,
+                `<path d="M${x - 40} ${g} v-60 M${x + 40} ${g} v-60 M${x - 50} ${g - 60} h100" stroke="#1d1c1a" stroke-width="5" fill="none"/>`
+            ];
+            return (shapes[i] || "") + `<rect x="${x + 66}" y="${g - 30}" width="16" height="16" fill="#a8322b" transform="rotate(4 ${x + 74} ${g - 22})"/>`;
+        }
+        function update() {
+            const max = document.documentElement.scrollHeight - innerHeight;
+            prog = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+            layers.forEach(l => { const s = +l.dataset.s; const w = W + (WORLD - W) * s; l.style.transform = `translateX(${-prog * (w - W)}px)` });
+            $("fill").style.width = prog * 100 + "%";
+            let a = -1, best = 1; STATIONS.forEach((st, i) => { const d = Math.abs(st.p - prog); if (d < .075 && d < best) { best = d; a = i } });
+            const c = $("card");
+            if (a >= 0) { $("cTitle").textContent = STATIONS[a].t; $("cBody").innerHTML = STATIONS[a].b; $("seal").innerHTML = STATIONS[a].seal; c.classList.add("on") } else c.classList.remove("on");
+            [...$("trail").querySelectorAll("button")].forEach((b, i) => b.classList.toggle("on", i === a));
+            const started = prog > .01; $("hero").classList.toggle("gone", prog > .05); $("hint").classList.toggle("gone", started);
+        }
+        let last = 0, tm;
+        addEventListener("scroll", () => {
+            const w = $("walker"); w.classList.add("walk"); w.classList.toggle("back", scrollY < last); last = scrollY;
+            clearTimeout(tm); tm = setTimeout(() => w.classList.remove("walk"), 160); update();
+        }, { passive: true });
+        addEventListener("resize", build);
+        function go(p) { const max = document.documentElement.scrollHeight - innerHeight; scrollTo({ top: p * max, behavior: matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth" }) }
+        addEventListener("keydown", e => {
+            if ($("sheet").classList.contains("on")) return;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); scrollBy(0, innerHeight * .35) }
+            if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); scrollBy(0, -innerHeight * .35) }
+        });
+        $("quick").onclick = () => $("sheet").classList.add("on");
+        $("close").onclick = () => $("sheet").classList.remove("on");
+        build();
+    </script>
+</body>
+
+</html>
