@@ -2,531 +2,542 @@
 <html lang="vi">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Arthur, bút danh Long Quân</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --paper: #dcd8cb;
-            --ink: #1d1c1a;
-            --mist: #a7aca5;
-            --slate: #66787a;
-            --seal: #a8322b
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Long Quân</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      background: #232624;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0
-        }
+    #stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #e8e4d6;
+      isolation: isolate;
+    }
 
-        html,
-        body {
-            background: var(--paper);
-            color: var(--ink);
-            font-family: "Noto Serif", Georgia, serif
-        }
+    #far,
+    #world {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      will-change: transform;
+    }
 
-        body {
-            height: 700vh
-        }
+    #far {
+      background-repeat: repeat-x;
+      background-size: auto 130%;
+      /* phóng to ảnh: 130% chiều cao màn hình, càng lớn núi càng to */
+      background-position: left bottom;
+      /* neo đáy để phần núi hiện ra, phần trời trống bị cắt bớt phía trên */
+      z-index: 1;
+    }
 
-        .stage {
-            position: fixed;
-            inset: 0;
-            overflow: hidden
-        }
+    #world {
+      z-index: 4;
+    }
 
-        .layer {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 100%;
-            will-change: transform
-        }
+    #hero {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      transform-origin: center bottom;
+      will-change: transform;
+      pointer-events: none;
+      user-select: none;
+    }
 
-        .layer svg {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 100%;
-            width: 100%
-        }
+    /* multiply: màu trắng thì không đổi gì, màu xanh tối thì làm cả cảnh tối lại */
+    #tint {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      background: #fff;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
 
-        .sun {
-            position: absolute;
-            top: 12%;
-            right: 14%;
-            width: min(16vw, 120px);
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background: var(--seal);
-            opacity: .82;
-            filter: blur(1.5px)
-        }
+    /* mặt trời, trăng, sao nằm trên lớp tint nên không bị làm tối theo */
+    #sky-objects {
+      position: absolute;
+      inset: 0;
+      z-index: 7;
+      overflow: hidden;
+      pointer-events: none;
+    }
 
-        .hero {
-            position: fixed;
-            top: 18%;
-            left: 5vw;
-            z-index: 3;
-            pointer-events: none;
-            transition: opacity .6s
-        }
+    .orb {
+      position: absolute;
+      left: 0;
+      top: 0;
+      border-radius: 50%;
+      will-change: transform;
+    }
 
-        .hero h1 {
-            writing-mode: vertical-rl;
-            font-size: clamp(28px, 5vw, 54px);
-            font-weight: 700;
-            letter-spacing: .12em;
-            line-height: 1.3
-        }
+    #sun {
+      width: min(14vw, 110px);
+      aspect-ratio: 1;
+      background: radial-gradient(circle, #ffd98a 0%, #e5533d 72%);
+      box-shadow: 0 0 60px 20px rgba(255, 150, 80, .45);
+    }
 
-        .hero p {
-            margin-top: 14px;
-            font-size: 14px;
-            color: #3b3a37;
-            max-width: 22ch
-        }
+    #moon {
+      width: min(11vw, 90px);
+      aspect-ratio: 1;
+      background: radial-gradient(circle at 35% 35%, #ffffff, #dfc437);
+      box-shadow: 0 0 40px 10px rgba(220, 225, 255, .35);
+    }
 
-        .hero.gone {
-            opacity: 0
-        }
+    .cloud {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      z-index: 3;
+      background-repeat: repeat-x;
+      pointer-events: none;
+      will-change: background-position;
+      /* mờ mép trên và dưới để mây tan dần, không lộ đường cắt */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 70%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 30%, #000 70%, transparent 100%);
+    }
 
-        .walker {
-            position: fixed;
-            left: 30vw;
-            bottom: 15%;
-            width: 56px;
-            height: 96px;
-            z-index: 4;
-            transform: translateX(-50%)
-        }
+    /* Cả hai lớp dùng chung vùng 23% đến 58% (cao 35%), chồng lên nhau và đều mờ */
+    #cloudsA {
+      top: 23%;
+      height: 55%;
+      opacity: .50;
+      background-size: auto 100%;
+    }
 
-        .walker svg {
-            width: 100%;
-            height: 100%;
-            overflow: visible
-        }
+    /* mây nhỏ, xa */
+    #cloudsB {
+      top: 23%;
+      height: 35%;
+      opacity: .75;
+      background-size: auto 140%;
+    }
 
-        .walker .legL,
-        .walker .legR {
-            transform-origin: 28px 62px
-        }
+    /* mây to hơn một chút, gần */
 
-        .walker.walk .legL {
-            animation: step .5s ease-in-out infinite
-        }
-
-        .walker.walk .legR {
-            animation: step .5s ease-in-out infinite reverse
-        }
-
-        .walker.walk svg {
-            animation: bob .5s ease-in-out infinite
-        }
-
-        .walker.back svg {
-            transform: scaleX(-1)
-        }
-
-        @keyframes step {
-
-            0%,
-            100% {
-                transform: rotate(-18deg)
-            }
-
-            50% {
-                transform: rotate(18deg)
-            }
-        }
-
-        @keyframes bob {
-
-            0%,
-            100% {
-                translate: 0 0
-            }
-
-            50% {
-                translate: 0 -3px
-            }
-        }
-
-        .card {
-            position: fixed;
-            z-index: 5;
-            left: calc(30vw + 60px);
-            top: 22%;
-            width: min(420px, calc(70vw - 90px));
-            padding: 22px 24px 24px;
-            background: rgba(232, 228, 216, .93);
-            border: 1px solid var(--ink);
-            border-radius: 2px;
-            opacity: 0;
-            transform: translateY(6px);
-            transition: opacity .35s, transform .35s;
-            pointer-events: none
-        }
-
-        .card.on {
-            opacity: 1;
-            transform: none;
-            pointer-events: auto
-        }
-
-        .card h2 {
-            font-size: 22px;
-            margin-bottom: 10px
-        }
-
-        .card p,
-        .card li {
-            font-size: 15px;
-            line-height: 1.75
-        }
-
-        .card ul {
-            padding-left: 18px
-        }
-
-        .card .tag {
-            display: inline-block;
-            margin-top: 12px;
-            font-size: 13px;
-            color: var(--seal);
-            font-style: italic
-        }
-
-        .seal {
-            position: absolute;
-            top: -14px;
-            right: 16px;
-            width: 34px;
-            height: 34px;
-            background: var(--seal);
-            color: #eee;
-            font-size: 11px;
-            line-height: 1.05;
-            display: grid;
-            place-items: center;
-            text-align: center;
-            border-radius: 2px;
-            transform: rotate(3deg)
-        }
-
-        .trail {
-            position: fixed;
-            z-index: 6;
-            left: 5vw;
-            right: 5vw;
-            bottom: 3.5%;
-            height: 26px;
-            display: flex;
-            align-items: center
-        }
-
-        .trail::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--ink);
-            opacity: .35
-        }
-
-        .trail i {
-            position: absolute;
-            height: 2px;
-            left: 0;
-            background: var(--seal);
-            width: 0
-        }
-
-        .trail button {
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            margin-left: -7px;
-            border-radius: 50%;
-            border: 1px solid var(--ink);
-            background: var(--paper);
-            cursor: pointer;
-            padding: 0
-        }
-
-        .trail button.on {
-            background: var(--seal);
-            border-color: var(--seal)
-        }
-
-        .trail button:focus-visible,
-        .quick:focus-visible,
-        .close:focus-visible {
-            outline: 2px solid var(--seal);
-            outline-offset: 3px
-        }
-
-        .quick {
-            position: fixed;
-            z-index: 7;
-            top: 16px;
-            right: 16px;
-            font: inherit;
-            font-size: 13px;
-            padding: 8px 14px;
-            background: var(--ink);
-            color: var(--paper);
-            border: 0;
-            border-radius: 2px;
-            cursor: pointer
-        }
-
-        .hint {
-            position: fixed;
-            z-index: 6;
-            left: 50%;
-            bottom: 9%;
-            transform: translateX(-50%);
-            font-size: 13px;
-            color: #3b3a37;
-            font-style: italic;
-            transition: opacity .6s;
-            white-space: nowrap
-        }
-
-        .hint.gone {
-            opacity: 0
-        }
-
-        .sheet {
-            position: fixed;
-            inset: 0;
-            z-index: 9;
-            background: var(--paper);
-            overflow: auto;
-            padding: 8vh 6vw;
-            display: none
-        }
-
-        .sheet.on {
-            display: block
-        }
-
-        .sheet .in {
-            max-width: 64ch;
-            margin: 0 auto
-        }
-
-        .sheet h2 {
-            font-size: 26px;
-            margin-bottom: 6px
-        }
-
-        .sheet h3 {
-            font-size: 17px;
-            margin: 26px 0 6px
-        }
-
-        .sheet p,
-        .sheet li {
-            line-height: 1.8;
-            font-size: 16px
-        }
-
-        .sheet ul {
-            padding-left: 20px
-        }
-
-        .close {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            font: inherit;
-            font-size: 13px;
-            padding: 8px 14px;
-            background: var(--ink);
-            color: var(--paper);
-            border: 0;
-            border-radius: 2px;
-            cursor: pointer
-        }
-
-        .todo {
-            color: var(--seal);
-            font-style: italic
-        }
-
-        @media(max-width:640px) {
-            .card {
-                left: 5vw;
-                right: 5vw;
-                width: auto;
-                top: auto;
-                bottom: 16%
-            }
-
-            .hero h1 {
-                font-size: 30px
-            }
-
-            .hint {
-                bottom: 11%
-            }
-        }
-
-        @media(prefers-reduced-motion:reduce) {
-
-            .walker.walk svg,
-            .walker.walk .legL,
-            .walker.walk .legR {
-                animation: none
-            }
-
-            .card {
-                transition: none
-            }
-        }
-    </style>
+    #stars {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 45%;
+      opacity: 0;
+      background-image:
+        radial-gradient(1.5px 1.5px at 12% 18%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 27% 42%, #fff, transparent),
+        radial-gradient(2px 2px at 41% 12%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 58% 34%, #fff, transparent),
+        radial-gradient(2px 2px at 73% 20%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 88% 46%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 95% 10%, #fff, transparent);
+    }
+  </style>
 </head>
 
 <body>
-    <div class="stage" id="stage" aria-hidden="true">
-        <div class="sun"></div>
-        <div class="layer" data-s=".25" id="far"></div>
-        <div class="layer" data-s=".55" id="mid"></div>
-        <div class="layer" data-s="1" id="near"></div>
+  <div id="stage">
+    <div id="far"></div> <!-- lớp nền xa, trôi chậm -->
+
+    <div id="cloudsA" class="cloud"></div> <!-- lớp mây xa, cao, trôi chậm -->
+    <div id="cloudsB" class="cloud"></div> <!-- lớp mây gần, thấp, trôi nhanh hơn -->
+
+    <div id="world"> <!-- thế giới dài, nhân vật ở trong này -->
+      <canvas id="hero"></canvas>
     </div>
 
-    <div class="hero" id="hero">
-        <h1>Long Quân</h1>
-        <p>Arthur. Kiến trúc sư giải pháp, họa sĩ thủy mặc.</p>
+    <div id="tint"></div> <!-- lớp phủ đổi màu cả cảnh (sáng, hoàng hôn, đêm) -->
+    <div id="sky-objects">
+      <div id="stars"></div> <!-- các vì sao, chỉ hiện ban đêm -->
+      <div id="sun" class="orb"></div>
+      <div id="moon" class="orb"></div>
     </div>
+  </div>
 
-    <div class="walker" id="walker" aria-hidden="true">
-        <svg viewBox="0 0 56 96">
-            <g fill="#1d1c1a" stroke="#1d1c1a" stroke-linecap="round">
-                <path d="M6 30 L28 6 L50 30 Q28 24 6 30Z" stroke="none" />
-                <circle cx="28" cy="36" r="7" stroke="none" />
-                <path d="M14 46 Q28 40 42 46 L46 66 Q28 72 10 66Z" stroke="none" />
-                <path class="legL" d="M28 62 L28 92" fill="none" stroke-width="4" />
-                <path class="legR" d="M28 62 L28 92" fill="none" stroke-width="4" />
-                <path d="M48 26 L48 92" fill="none" stroke-width="2.5" />
-            </g>
-        </svg>
-    </div>
+  <script>
 
-    <article class="card" id="card" role="region" aria-live="polite">
-        <div class="seal" id="seal"></div>
-        <h2 id="cTitle"></h2>
-        <div id="cBody"></div>
-    </article>
+    const stage = document.getElementById("stage");
+    const hero = document.getElementById("hero");
+    const world = document.getElementById("world");
+    const far = document.getElementById("far");
 
-    <div class="trail" id="trail"><i id="fill"></i></div>
-    <p class="hint" id="hint">Cuộn chuột, vuốt hoặc dùng phím mũi tên để dẫn người lữ khách đi.</p>
-    <button class="quick" id="quick">Xem resume nhanh</button>
+    const sun = document.getElementById("sun");
+    const moon = document.getElementById("moon");
+    const stars = document.getElementById("stars");
+    const tint = document.getElementById("tint");
 
-    <section class="sheet" id="sheet" aria-label="Resume nhanh">
-        <button class="close" id="close">Đóng</button>
-        <div class="in">
-            <h2>Arthur (bút danh Long Quân)</h2>
-            <p>Senior Application Architect và Solution Architect, hơn 10 năm kinh nghiệm. Sống tại Thành phố Hồ Chí
-                Minh.</p>
-            <h3>Chuyên môn</h3>
-            <ul>
-                <li>Hệ thống phân tán, kiến trúc hướng sự kiện</li>
-                <li>GCP, Kafka, microservices</li>
-                <li>Nền tảng logistics và chuỗi cung ứng</li>
-            </ul>
-            <h3>Kinh nghiệm</h3>
-            <p class="todo">Thêm các vai trò, công ty, thời gian và thành tựu thật của bạn tại đây.</p>
-            <h3>Thư họa</h3>
-            <p>Vẽ thủy mặc (thiền họa) và làm thơ cổ điển, kết hợp tranh, thư pháp và thơ Hán Việt trong cùng một tác
-                phẩm.</p>
-            <h3>Liên hệ</h3>
-            <p class="todo">Thêm email, LinkedIn, GitHub.</p>
-        </div>
-    </section>
+    const WORLD_MULT = 10;     // thế giới dài bằng bao nhiêu lần màn hình
+    const FOLLOW = 0.4;   // nhân vật đứng ở 40% chiều ngang màn hình (0.5 là chính giữa)
+    const PARALLAX = 0.3;   // lớp xa trôi bằng 30% tốc độ lớp gần
+    const CAM_SMOOTH = 6;     // càng lớn camera bám càng sát, càng nhỏ càng trễ mượt
 
-    <script>
-        const $ = id => document.getElementById(id);
-        const STATIONS = [
-            { p: .04, t: "Khởi hành", seal: "Long<br>Quân", b: "<p>Arthur, bút danh Long Quân. Hơn mười năm dựng kiến trúc cho những hệ thống lớn, và song song đó là con đường của bút và mực.</p><p class='tag'>Người lữ khách đi về phía trước, bạn cuộn để đi cùng.</p>" },
-            { p: .27, t: "Núi: hành trình nghề", seal: "Nghề", b: "<p>Senior Application Architect và Solution Architect, hơn 10 năm kinh nghiệm, làm việc tại Thành phố Hồ Chí Minh.</p><p class='tag' style='color:#a8322b'>Thêm mốc công ty, vai trò và thành tựu thật của bạn ở đây.</p>" },
-            { p: .5, t: "Sông: nghề kiến trúc", seal: "Kỹ", b: "<ul><li>Hệ thống phân tán</li><li>Kiến trúc hướng sự kiện</li><li>GCP, Kafka, microservices</li><li>Nền tảng logistics và chuỗi cung ứng</li></ul>" },
-            { p: .74, t: "Am thất: thư họa", seal: "Họa", b: "<p>Thủy mặc và thiền họa, kết hợp tranh, thư pháp và thơ Hán Việt trong cùng một tác phẩm. Thể thơ quen thuộc: thất ngôn tứ tuyệt, lục bát, cổ phong.</p><p class='tag'>Chỗ này sau sẽ đặt ảnh tranh thật của bạn.</p>" },
-            { p: .95, t: "Bến cuối: liên hệ", seal: "Duyên", b: "<p class='todo'>Thêm email, LinkedIn, GitHub của bạn.</p>" }
-        ];
-        let W, H, WORLD, prog = 0;
-        const layers = [...document.querySelectorAll('.layer')];
-        function rnd(s) { return () => { s = (s * 16807) % 2147483647; return s / 2147483647 } }
-        function ridge(w, h, base, amp, seed, fill, op, blur) {
-            const r = rnd(seed); let d = `M0 ${h}L0 ${h * base}`, x = 0;
-            while (x < w) { x += 60 + r() * 140; const y = h * base - amp * (.2 + r() * .8); d += `Q${x - 40} ${y - amp * .2} ${x} ${y + r() * amp * .3}` }
-            d += `L${w} ${h}Z`;
-            return `<path d="${d}" fill="${fill}" opacity="${op}" filter="url(#ink${blur})"/>`;
+    let worldW = 0;           // chiều dài thế giới (px)
+    let camX = 0;           // vị trí camera: thế giới đã bị kéo sang trái bao nhiêu px
+
+    const SHEET = "./assets/main-char/main_char.png";
+    const ROWS = 3;                      // số hàng: idle, walk, jump
+    const ROW_STATE = ["idle", "walk", "jump"];
+    const FPS = { idle: 3, walk: 10, jump: 1 };
+    const keys = {};
+    const SCALE = 0.5;
+    const GAP = 2;
+    const SPEED = 260;   // tốc độ đi (px mỗi giây)
+    const GRAVITY = 2200;  // trọng lực
+    const JUMP_V = 780;   // lực nhảy
+    const DEPTH_MAX = 0.28;  // vùng đi lên xuống, tính theo tỉ lệ chiều cao màn hình
+    // Bảng màu bầu trời theo tiến độ p: [p, [R,G,B]]. Trắng (255,255,255) = ban ngày, không đổi màu tranh.
+    // Sửa các số này để đổi không khí từng thời điểm.
+    const SKY = [
+      [0.00, [255, 205, 160]],  // rạng đông
+      [0.12, [255, 240, 215]],  // buổi sáng
+      [0.22, [255, 255, 255]],  // giữa trưa
+      [0.36, [255, 200, 150]],  // chiều
+      [0.44, [150, 120, 170]],  // hoàng hôn tím
+      [0.52, [55, 65, 120]],  // đêm xuống
+      [0.60, [40, 50, 100]],  // nửa đêm
+      [0.70, [70, 80, 130]],  // gần sáng
+      [0.78, [255, 190, 150]],  // bình minh
+      [0.88, [255, 235, 210]],  // sáng lại
+      [1.00, [255, 250, 235]]
+    ];
+    const CLOUD_SRC = "./assets/world/cloud_fly.jpeg";   // đổi đúng đường dẫn ảnh mây của bạn
+
+    const CLOUDS = [
+      { el: document.getElementById("cloudsA"), par: 0.5, drift: -14, off: 600, y: "50%" },
+      { el: document.getElementById("cloudsB"), par: 0.8, drift: -28, off: 0, y: "50%" }
+    ];
+
+    // Vùng cắt trong ảnh gốc 1664 x 2496
+    const CROP_Y = 500;         // dòng bắt đầu (bỏ nhãn "AI" ở góc trên trái)
+    const CROP_H = 1100;        // chiều cao vùng cắt; ngắn hơn cho mảnh ghép có dạng ngang, mây không bị nhỏ
+
+    // Thông số xóa ô caro
+    const KEY_CHROMA = 12;      // độ lệch màu (max trừ min của R,G,B) nhỏ hơn số này = điểm ảnh "trung tính"
+    const KEY_SOFT = 6;       // vùng chuyển mềm, tránh viền răng cưa
+    const KEY_LUM = 215;     // chỉ điểm ảnh sáng hơn mức này mới bị xóa (giữ lại mực xám và nét đậm)
+    const OVERLAP = 0.25;    // vùng hòa trộn mép để nối liền mạch
+
+
+    const img = new Image();
+    let maxW = 0, maxH = 0, ready = false;
+    let state = "idle", frame = 0, frameTime = 0;
+    let x = 80, depth = 20, z = 0, vz = 0, facing = 1;
+
+    img.onload = () => { slice(); ready = true; showFrame(); };
+    img.src = SHEET;
+
+    const ctx = hero.getContext("2d");
+    const frames = { idle: [], walk: [], jump: [] };
+
+    function sizeWorld() {
+      const vw = stage.clientWidth;
+      worldW = vw * WORLD_MULT;
+      world.style.width = worldW + "px";
+      far.style.width = (vw + (worldW - vw) * PARALLAX) + "px";
+    }
+    sizeWorld();
+    addEventListener("resize", sizeWorld);            // đổi kích thước cửa sổ thì tính lại
+
+    // Tìm các đoạn liên tiếp có dữ liệu; chấp nhận khoảng trống nhỏ hơn gap
+    function runs(has, gap) {
+      const out = []; let s = -1, e = 0;
+      for (let i = 0; i <= has.length; i++) {
+        if (i < has.length && has[i]) { if (s < 0) s = i; e = 0; }
+        else if (s >= 0 && (++e >= gap || i === has.length)) {
+          out.push([s, i - e]); s = -1; e = 0;
         }
-        function build() {
-            W = innerWidth; H = innerHeight; WORLD = Math.max(W * 6, 4200);
-            const defs = `<defs><filter id="ink0"><feTurbulence baseFrequency=".02" numOctaves="3" seed="3"/><feDisplacementMap in="SourceGraphic" scale="14"/></filter><filter id="ink1"><feTurbulence baseFrequency=".03" numOctaves="2" seed="8"/><feDisplacementMap in="SourceGraphic" scale="8"/><feGaussianBlur stdDeviation="1.2"/></filter></defs>`;
-            const cfg = [["far", .25, .42, H * .34, 11, "#a7aca5", .7, 0], ["mid", .55, .6, H * .3, 23, "#66787a", .6, 1], ["near", 1, .86, H * .06, 41, "#1d1c1a", .9, 1]];
-            cfg.forEach(([id, s, base, amp, seed, fill, op, b]) => {
-                const w = W + (WORLD - W) * s; const el = $(id); el.style.width = w + "px";
-                let inner = ridge(w, H, base, amp, seed, fill, op, b);
-                if (id === "mid") inner += ridge(w, H, .72, H * .14, seed + 5, "#8a9695", .5, 1);
-                if (id === "near") {
-                    STATIONS.forEach(st => { const x = st.p * (WORLD - W) + W * .3; inner += marker(st, x) });
-                }
-                el.innerHTML = `<svg viewBox="0 0 ${w} ${H}" preserveAspectRatio="none" width="${w}" height="${H}">${defs}${inner}</svg>`;
-                el.firstChild.style.width = w + "px";
-            });
-            $("trail").querySelectorAll("button").forEach(b => b.remove());
-            STATIONS.forEach((st, i) => { const b = document.createElement("button"); b.style.left = st.p * 100 + "%"; b.setAttribute("aria-label", st.t); b.onclick = () => go(st.p); $("trail").appendChild(b) });
-            update();
-        }
-        function marker(st, x) {
-            const g = H * .86, i = STATIONS.indexOf(st);
-            const shapes = [
-                `<path d="M${x - 60} ${g} L${x} ${g - 90} L${x + 60} ${g}Z" fill="#1d1c1a"/>`,
-                `<path d="M${x - 70} ${g - 10} Q${x} ${g + 18} ${x + 70} ${g - 10}Z" fill="#1d1c1a"/><path d="M${x} ${g - 10}V${g - 80}" stroke="#1d1c1a" stroke-width="3"/>`,
-                `<path d="M${x - 60} ${g - 6} h120 M${x - 46} ${g - 6} v-56 M${x + 46} ${g - 6} v-56 M${x - 66} ${g - 62} Q${x} ${g - 100} ${x + 66} ${g - 62}Z" stroke="#1d1c1a" stroke-width="4" fill="#1d1c1a"/>`,
-                `<path d="M${x - 52} ${g} v-70 M${x + 52} ${g} v-70 M${x - 64} ${g - 70} h128 M${x - 56} ${g - 84} h112" stroke="#1d1c1a" stroke-width="6" fill="none"/>`,
-                `<path d="M${x - 40} ${g} v-60 M${x + 40} ${g} v-60 M${x - 50} ${g - 60} h100" stroke="#1d1c1a" stroke-width="5" fill="none"/>`
-            ];
-            return (shapes[i] || "") + `<rect x="${x + 66}" y="${g - 30}" width="16" height="16" fill="#a8322b" transform="rotate(4 ${x + 74} ${g - 22})"/>`;
-        }
-        function update() {
-            const max = document.documentElement.scrollHeight - innerHeight;
-            prog = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
-            layers.forEach(l => { const s = +l.dataset.s; const w = W + (WORLD - W) * s; l.style.transform = `translateX(${-prog * (w - W)}px)` });
-            $("fill").style.width = prog * 100 + "%";
-            let a = -1, best = 1; STATIONS.forEach((st, i) => { const d = Math.abs(st.p - prog); if (d < .075 && d < best) { best = d; a = i } });
-            const c = $("card");
-            if (a >= 0) { $("cTitle").textContent = STATIONS[a].t; $("cBody").innerHTML = STATIONS[a].b; $("seal").innerHTML = STATIONS[a].seal; c.classList.add("on") } else c.classList.remove("on");
-            [...$("trail").querySelectorAll("button")].forEach((b, i) => b.classList.toggle("on", i === a));
-            const started = prog > .01; $("hero").classList.toggle("gone", prog > .05); $("hint").classList.toggle("gone", started);
-        }
-        let last = 0, tm;
-        addEventListener("scroll", () => {
-            const w = $("walker"); w.classList.add("walk"); w.classList.toggle("back", scrollY < last); last = scrollY;
-            clearTimeout(tm); tm = setTimeout(() => w.classList.remove("walk"), 160); update();
-        }, { passive: true });
-        addEventListener("resize", build);
-        function go(p) { const max = document.documentElement.scrollHeight - innerHeight; scrollTo({ top: p * max, behavior: matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth" }) }
-        addEventListener("keydown", e => {
-            if ($("sheet").classList.contains("on")) return;
-            if (e.key === "ArrowRight" || e.key === "ArrowDown") { e.preventDefault(); scrollBy(0, innerHeight * .35) }
-            if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); scrollBy(0, -innerHeight * .35) }
+      }
+      return out;
+    }
+
+    function slice() {
+      const W = img.width, H = img.height;
+      const c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      const g = c.getContext("2d", { willReadFrequently: true });
+      g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, W, H).data;
+      const A = (x, y) => d[(y * W + x) * 4 + 3] > 20;
+
+      // 1. Tìm các hàng theo chỗ trống thật giữa chúng
+      const rowHas = new Array(H).fill(false);
+      for (let y = 0; y < H; y++)
+        for (let x = 0; x < W; x++) if (A(x, y)) { rowHas[y] = true; break; }
+      let bands = runs(rowHas, GAP);
+      const tallest = Math.max(...bands.map(b => b[1] - b[0] + 1));
+      bands = bands.filter(b => b[1] - b[0] + 1 >= tallest * 0.3);   // bỏ mảnh vụn
+
+      if (bands.length !== ROWS) {
+        console.warn("Dò được " + bands.length + " hàng, cần " + ROWS + ". Chia đều tạm.");
+        const rh = Math.floor(H / ROWS);
+        bands = Array.from({ length: ROWS }, (_, r) => [r * rh, (r + 1) * rh - 1]);
+      }
+
+      // 2. Trong mỗi hàng, tìm từng khung theo chiều ngang
+      bands.forEach(([y0, y1], r) => {
+        const list = frames[ROW_STATE[r]];
+        const colHas = new Array(W).fill(false);
+        for (let x = 0; x < W; x++)
+          for (let y = y0; y <= y1; y++) if (A(x, y)) { colHas[x] = true; break; }
+
+        const segs = runs(colHas, GAP).map(([x1, x2]) => {
+          let top = y1, bot = y0;
+          for (let x = x1; x <= x2; x++)
+            for (let y = y0; y <= y1; y++)
+              if (A(x, y)) { if (y < top) top = y; if (y > bot) bot = y; }
+          return { sx: x1, sy: top, sw: x2 - x1 + 1, sh: bot - top + 1 };
+        }).filter(f => f.sw >= 8 && f.sh >= 8);
+
+        // bỏ khung thấp hơn nửa khung cao nhất (mảnh bàn chân thừa)
+        const tall = Math.max(...segs.map(f => f.sh));
+        segs.filter(f => f.sh >= tall * 0.5).forEach(f => {
+          list.push(f);
+          if (f.sw > maxW) maxW = f.sw;
+          if (f.sh > maxH) maxH = f.sh;
         });
-        $("quick").onclick = () => $("sheet").classList.add("on");
-        $("close").onclick = () => $("sheet").classList.remove("on");
-        build();
-    </script>
+      });
+
+      hero.width = maxW; hero.height = maxH;
+      hero.style.width = maxW * SCALE + "px";
+      hero.style.height = maxH * SCALE + "px";
+      console.log("Số khung:", Object.fromEntries(
+        Object.entries(frames).map(([k, v]) => [k, v.length])));
+    }
+
+    function showFrame() {
+      const f = frames[state][frame];
+      if (!f) return;
+      ctx.clearRect(0, 0, hero.width, hero.height);
+      // căn giữa ngang, chân luôn sát đáy: hết giật lệch
+      ctx.drawImage(img, f.sx, f.sy, f.sw, f.sh,
+        Math.round((maxW - f.sw) / 2), maxH - f.sh, f.sw, f.sh);
+    }
+
+    function setState(next, dt) {
+      if (!ready) return;
+      if (next !== state) { state = next; frame = 0; frameTime = 0; showFrame(); return; }
+      frameTime += dt;
+      if (frameTime >= 1 / FPS[state]) {
+        frameTime = 0;
+        frame = (frame + 1) % frames[state].length;
+        showFrame();
+      }
+    }
+    ///////////////////////
+
+    ///BACKGROUND ALGORITHM//////////////////////////
+    function makeMirror(src) {
+      const im = new Image();
+      im.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = im.width * 2; c.height = im.height;
+        const g = c.getContext("2d");
+        g.drawImage(im, 0, 0);                   // nửa trái: ảnh gốc
+        g.translate(im.width * 2, 0);
+        g.scale(-1, 1);                          // lật ngang
+        g.drawImage(im, 0, 0);                   // nửa phải: ảnh lật, mép trái của nó chính là mép phải của ảnh gốc
+        far.style.backgroundImage = `url(${c.toDataURL("image/jpeg", 0.92)})`;
+      };
+      im.src = src;
+    }
+    // makeMirror("./assets/world/Background.png");
+
+    // Biến ảnh thành mảnh ghép liền mạch rồi gán làm nền lớp #far
+    function makeSeamless(src, overlapRatio = 0.25) {
+      const im = new Image();
+      im.onload = () => {
+        const W = im.width, H = im.height;
+        const O = Math.round(W * overlapRatio);  // độ rộng vùng hòa trộn (25% chiều ngang ảnh)
+        const T = W - O;                         // độ rộng mảnh ghép cuối cùng
+
+        const c = document.createElement("canvas");
+        c.width = T; c.height = H;
+        const g = c.getContext("2d");
+        g.drawImage(im, 0, 0);                   // vẽ ảnh gốc; đoạn thừa bên phải tự bị cắt
+
+        // Lấy đoạn bị cắt (từ T tới W) làm lớp phủ, mờ dần từ trái sang phải
+        const s = document.createElement("canvas");
+        s.width = O; s.height = H;
+        const sg = s.getContext("2d");
+        sg.drawImage(im, T, 0, O, H, 0, 0, O, H);
+        sg.globalCompositeOperation = "destination-in";     // dùng gradient làm mặt nạ độ trong suốt
+        const grad = sg.createLinearGradient(0, 0, O, 0);
+        grad.addColorStop(0, "rgba(0,0,0,1)");              // mép trái lớp phủ: hiện rõ, khớp với mép phải mảnh
+        grad.addColorStop(1, "rgba(0,0,0,0)");              // mép phải lớp phủ: tan hẳn vào ảnh gốc
+        sg.fillStyle = grad;
+        sg.fillRect(0, 0, O, H);
+
+        g.drawImage(s, 0, 0);                    // đặt lớp phủ lên đầu mảnh ghép
+        far.style.backgroundImage = `url(${c.toDataURL("image/jpeg", 0.92)})`;
+      };
+      im.src = src;
+    }
+    makeSeamless("./assets/world/Background.png");   // đổi thành tên file ảnh núi của bạn
+    //////////////////////////////////////////////////////////////////
+
+    ///////////////////////CLOUD/////////////////////////////////////////
+    function loadCloudTile(src, done) {
+      const im = new Image();
+      im.onload = () => {
+        const W = im.width;
+
+        // 1. Cắt vùng mây và đọc từng điểm ảnh
+        const c = document.createElement("canvas"); c.width = W; c.height = CROP_H;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        g.drawImage(im, 0, CROP_Y, W, CROP_H, 0, 0, W, CROP_H);
+        const id = g.getImageData(0, 0, W, CROP_H), d = id.data;
+
+        // 2. Xóa ô caro: điểm ảnh vừa trung tính (xám trắng) vừa sáng thì cho trong suốt
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i], gr = d[i + 1], b = d[i + 2];
+          const chroma = Math.max(r, gr, b) - Math.min(r, gr, b);   // càng gần 0 càng "xám trắng"
+          const L = 0.299 * r + 0.587 * gr + 0.114 * b;             // độ sáng
+          const neutral = Math.max(0, Math.min(1, (KEY_CHROMA - chroma) / KEY_SOFT));
+          const bright = Math.max(0, Math.min(1, (L - KEY_LUM) / 15));
+          d[i + 3] = 255 * (1 - neutral * bright);                  // vừa trung tính vừa sáng: alpha về 0
+        }
+        g.putImageData(id, 0, 0);
+
+        // 3. Làm liền mạch: cắt bớt mép phải, đoạn đó mờ dần chồng lên đầu ảnh
+        const O = Math.round(W * OVERLAP), T = W - O;
+        const out = document.createElement("canvas"); out.width = T; out.height = CROP_H;
+        const og = out.getContext("2d");
+        og.drawImage(c, 0, 0);
+
+        const s = document.createElement("canvas"); s.width = O; s.height = CROP_H;
+        const sg = s.getContext("2d");
+        sg.drawImage(c, T, 0, O, CROP_H, 0, 0, O, CROP_H);
+        sg.globalCompositeOperation = "destination-in";
+        const gh = sg.createLinearGradient(0, 0, O, 0);
+        gh.addColorStop(0, "rgba(0,0,0,1)");
+        gh.addColorStop(1, "rgba(0,0,0,0)");
+        sg.fillStyle = gh; sg.fillRect(0, 0, O, CROP_H);
+        og.drawImage(s, 0, 0);
+
+        // 4. Mép trên đã trong suốt sẵn, chỉ cần mờ mép dưới để mây tan dần thay vì bị cắt thẳng
+        og.globalCompositeOperation = "destination-in";
+        const gv = og.createLinearGradient(0, 0, 0, CROP_H);
+        gv.addColorStop(0, "rgba(0,0,0,1)");
+        gv.addColorStop(0.80, "rgba(0,0,0,1)");
+        gv.addColorStop(1, "rgba(0,0,0,0)");
+        og.fillStyle = gv; og.fillRect(0, 0, T, CROP_H);
+
+        done(out.toDataURL("image/png"));       // PNG để giữ độ trong suốt
+      };
+      im.src = src;
+    }
+
+    loadCloudTile(CLOUD_SRC, url =>
+      CLOUDS.forEach(c => c.el.style.backgroundImage = `url(${url})`)
+    );
+    ////////////////////////////////////////////////////////////////
+
+    addEventListener("keydown", e => {
+      if (["KeyW", "KeyA", "KeyS", "KeyD", "Space"].includes(e.code)) e.preventDefault();
+      keys[e.code] = true;
+      if (e.code === "Space" && z === 0) vz = JUMP_V;   // chỉ nhảy khi đang chạm đất
+    });
+    addEventListener("keyup", e => { keys[e.code] = false; });
+    addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
+
+    // Lấy màu ở p bằng cách nội suy giữa hai mốc gần nhất
+    function skyColor(p) {
+      for (let i = 1; i < SKY.length; i++) {
+        if (p <= SKY[i][0]) {
+          const [p0, c0] = SKY[i - 1], [p1, c1] = SKY[i];
+          const k = (p - p0) / (p1 - p0);                       // 0..1 giữa hai mốc
+          return c0.map((v, j) => v + (c1[j] - v) * k);
+        }
+      }
+      return SKY[SKY.length - 1][1];
+    }
+
+    // Đặt một thiên thể chạy theo cung tròn. t = 0 là chân trời trái, 0.5 là đỉnh trời, 1 là chân trời phải.
+    function place(el, t) {
+      if (t < 0 || t > 1) { el.style.display = "none"; return; }  // ngoài giờ thì ẩn hẳn
+      el.style.display = "block";
+      const vw = stage.clientWidth, vh = stage.clientHeight;
+      const x = vw * (0.08 + 0.84 * t) - el.offsetWidth / 2;                     // chạy từ trái sang phải
+      const y = vh * 0.62 - Math.sin(Math.PI * t) * vh * 0.5 - el.offsetHeight / 2;
+      // 0.62 vh là đường chân trời; sin tạo đường vòng cung, 0.5 vh là độ cao đỉnh
+      el.style.transform = `translate(${x}px, ${y}px)`;
+      el.style.opacity = Math.min(1, Math.sin(Math.PI * t) * 4);  // mờ dần khi chạm chân trời, cho tự nhiên
+    }
+
+    function updateSky(p) {
+      place(sun, p / 0.42);                        // mặt trời lần 1: p từ 0 đến 0.42
+      place(moon, (p - 0.40) / 0.38);               // trăng: p từ 0.40 đến 0.78
+      const t2 = (p - 0.74) / 0.26 * 0.5;           // mặt trời lần 2: chỉ đi nửa cung (lên tới đỉnh, không lặn)
+      if (p > 0.74) { place(sun, t2); }             // ghi đè vị trí mặt trời khi vào giai đoạn cuối
+
+      const [r, g, b] = skyColor(p);
+      tint.style.background = `rgb(${r | 0},${g | 0},${b | 0})`;
+
+      const brightness = (r + g + b) / 3;           // 255 là sáng nhất
+      stars.style.opacity = Math.max(0, Math.min(1, (200 - brightness) / 100));  // càng tối càng nhiều sao
+    }
+
+    let last = performance.now();
+
+    function loop(now) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+
+      // Đi trái phải (A, D) và lên xuống trên nền (W, S)
+      const dx = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
+      const dy = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0);
+      if (dx) facing = dx;
+      x += dx * SPEED * dt;
+      depth += dy * SPEED * 0.6 * dt;
+
+      // Giới hạn trong sân khấu
+      const maxX = worldW - hero.clientWidth;
+      const maxD = stage.clientHeight * DEPTH_MAX;
+      x = Math.max(0, Math.min(maxX, x));
+      depth = Math.max(0, Math.min(maxD, depth));
+
+      // Nhảy
+      if (z > 0 || vz > 0) {
+        z += vz * dt;
+        vz -= GRAVITY * dt;
+        if (z <= 0) { z = 0; vz = 0; }
+      }
+
+      const onGround = z === 0;
+      const moving = dx !== 0 || dy !== 0;
+      setState(!onGround ? "jump" : moving ? "walk" : "idle", dt);
+
+      // ===== CAMERA =====
+      const vw = stage.clientWidth;
+      const maxCam = worldW - vw;                          // camera không được vượt quá cuối thế giới
+      const goal = Math.max(0, Math.min(maxCam, x - vw * FOLLOW));
+      // vị trí camera lý tưởng: đặt nhân vật ở 40% màn hình,
+      // rồi kẹp trong [0, maxCam] để không lộ vùng trống
+      camX += (goal - camX) * Math.min(1, CAM_SMOOTH * dt);
+      // đuổi dần tới goal mỗi khung hình (nội suy),
+      // nhân dt để tốc độ không phụ thuộc máy nhanh hay chậm
+      world.style.transform = `translateX(${-camX}px)`;            // lớp gần: kéo thế giới sang trái đúng bằng camX
+      far.style.transform = `translateX(${-camX * PARALLAX}px)`; // lớp xa: kéo ít hơn, tạo chiều sâu
+
+      const p = maxX > 0 ? x / maxX : 0;   // tiến độ hành trình: 0 ở đầu, 1 ở cuối thế giới
+      updateSky(p);
+
+      hero.style.transform =
+        `translate(${x}px, ${-(depth + z)}px) scaleX(${facing})`;
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
 </body>
 
 </html>
