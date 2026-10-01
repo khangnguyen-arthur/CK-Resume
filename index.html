@@ -3,8 +3,10 @@
 
 <head>
   <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Long Quân</title>
+  <title>Khang Nguyen, CK Resume</title>
   <style>
     html,
     body {
@@ -142,6 +144,286 @@
         radial-gradient(1.5px 1.5px at 88% 46%, #fff, transparent),
         radial-gradient(1.5px 1.5px at 95% 10%, #fff, transparent);
     }
+
+    #ground {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      /* rộng bằng cả thế giới (worldW) */
+      background-repeat: repeat-x;
+      /* lặp ngang để đi mãi không hết */
+      background-position: left bottom;
+      background-size: auto 100%;
+      /* mảnh ghép cao đúng bằng lớp, ngang tự tính theo tỉ lệ */
+      pointer-events: none;
+    }
+
+    /* Khung chứa một cột mốc: rộng đúng một màn hình, % bên trong tính theo khung này */
+    .milestone {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 100vw;
+      pointer-events: none;
+      /* panel không cản phím hay chuột */
+      font-family: "Noto Serif", Georgia, serif;
+      color: #1f1c18;
+    }
+
+    /* ===== Panel trái: bảng hướng dẫn ===== */
+    .guide {
+      position: absolute;
+      left: 5%;
+      top: 15%;
+      width: min(26%, 340px);
+      padding: 20px 22px 22px;
+      background: rgba(239, 230, 208, .9);
+      /* giấy dó hơi trong để thấy mây phía sau */
+      border: 1.5px solid #1f1c18;
+      border-radius: 3px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    }
+
+    .guide h2 {
+      margin: 0 0 6px;
+      font-size: clamp(16px, 2.4vh, 21px);
+    }
+
+    .guide .lead {
+      margin: 0 0 14px;
+      line-height: 1.6;
+      font-size: clamp(12px, 1.8vh, 15px);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 10px 0;
+    }
+
+    .what {
+      font-weight: 700;
+      font-size: clamp(13px, 2vh, 16px);
+    }
+
+    .wasd {
+      display: grid;
+      grid-template-columns: repeat(3, 2.4em);
+      gap: .3em;
+    }
+
+    /* bố cục phím như bàn phím thật */
+    .k-w {
+      grid-column: 2;
+    }
+
+    /* W nằm trên, ở giữa */
+    .key {
+      /* nút phím nổi */
+      display: grid;
+      place-items: center;
+      min-width: 2.4em;
+      height: 2.4em;
+      padding: 0 .4em;
+      background: #f7f0de;
+      border: 1.5px solid #1f1c18;
+      border-bottom-width: 4px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: clamp(12px, 1.9vh, 15px);
+    }
+
+    .space {
+      min-width: 7em;
+    }
+
+    .go {
+      margin: 14px 0 0;
+      font-style: italic;
+      color: #a8322b;
+      font-size: clamp(12px, 1.8vh, 15px);
+    }
+
+    /* ===== Panel phải: bức liễn treo ===== */
+    .lien {
+      position: absolute;
+      left: 62%;
+      top: 4%;
+      width: min(18%, 350px);
+      height: 62%;
+      display: flex;
+      flex-direction: column;
+      transform-origin: 50% 0;
+      /* xoay quanh điểm treo ở trên */
+      animation: sway 6s ease-in-out infinite;
+      /* đung đưa rất nhẹ */
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .3));
+    }
+
+    .cord {
+      position: absolute;
+      left: 50%;
+      top: -4vh;
+      width: 2px;
+      height: 4vh;
+      background: #4b3a31;
+    }
+
+    .rod {
+      /* hai thanh trục gỗ trên và dưới */
+      position: relative;
+      height: 14px;
+      margin: 0 -10px;
+      flex: none;
+      background: linear-gradient(#6a5446, #4b3a31);
+      border-radius: 7px;
+    }
+
+    .rod.bottom::after {
+      /* tua đỏ rủ xuống dưới */
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 6px;
+      height: 5vh;
+      margin-left: -3px;
+      background: #a8322b;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .paper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      padding: 5% 9% 18%;
+      font-size: clamp(11px, 1.8vh, 15px);
+      background: linear-gradient(#f1e8d2, #e7dcc0);
+    }
+
+    .paper .tag {
+      margin: 0;
+      letter-spacing: .3em;
+      font-size: .8em;
+      color: #a8322b;
+    }
+
+    .paper .name {
+      margin: .2em 0 0;
+      font-size: 2.2em;
+      letter-spacing: .08em;
+    }
+
+    .paper .pen {
+      margin: .1em 0 .6em;
+      font-style: italic;
+      opacity: .8;
+    }
+
+    .paper hr {
+      border: 0;
+      height: 1px;
+      margin: .7em 0;
+      background: linear-gradient(90deg, transparent, #1f1c18, transparent);
+    }
+
+    /* nét mực mờ hai đầu */
+    .paper .role {
+      margin: .4em 0;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .paper .meta {
+      margin: .4em 0;
+      opacity: .8;
+      line-height: 1.5;
+    }
+
+    .paper h3 {
+      margin: .3em 0;
+      font-size: 1em;
+      letter-spacing: .2em;
+    }
+
+    .paper ul {
+      margin: .4em 0;
+      padding: 0;
+      list-style: none;
+      line-height: 1.75;
+    }
+
+    .paper .art {
+      margin: .6em 0 0;
+      font-style: italic;
+      font-size: .9em;
+      opacity: .75;
+    }
+
+    .seal {
+      /* con dấu đỏ góc dưới */
+      position: absolute;
+      right: 10%;
+      bottom: 4%;
+      width: 2.6em;
+      height: 2.6em;
+      display: grid;
+      place-items: center;
+      background: #a8322b;
+      color: #f3eee0;
+      font-size: .7em;
+      line-height: 1.1;
+      border-radius: 2px;
+      transform: rotate(4deg);
+    }
+
+    #panels {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      z-index: 8;
+      /* cao hơn sky objects (7), nên panel nổi lên trên mặt trời */
+      pointer-events: none;
+      will-change: transform;
+      /* sẽ dịch chuyển liên tục theo camera */
+    }
+
+    @keyframes sway {
+
+      0%,
+      100% {
+        transform: rotate(-.6deg);
+      }
+
+      50% {
+        transform: rotate(.6deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .lien {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+
+      /* màn hẹp: hai panel chia đôi chiều ngang */
+      .guide {
+        left: 3%;
+        top: 12%;
+        width: 46%;
+      }
+
+      .lien {
+        left: 56%;
+        width: 40%;
+      }
+    }
   </style>
 </head>
 
@@ -153,7 +435,55 @@
     <div id="cloudsB" class="cloud"></div> <!-- lớp mây gần, thấp, trôi nhanh hơn -->
 
     <div id="world"> <!-- thế giới dài, nhân vật ở trong này -->
+      <div id="ground"></div>
       <canvas id="hero"></canvas>
+    </div>
+
+    <div id="panels">
+      <section class="milestone" style="left:0">
+        <!-- Panel trái: hướng dẫn điều khiển -->
+        <aside class="guide">
+          <h2>Start Exploring</h2>
+          <p class="lead">Control the traveler go to right!</p>
+          <div class="row">
+            <div class="wasd">
+              <span class="key k-w">W</span>
+              <span></span><span class="key">A</span><span class="key">S</span><span class="key">D</span>
+            </div>
+            <span class="what">Move</span>
+          </div>
+          <div class="row">
+            <span class="key space">Space</span>
+            <span class="what">Jump</span>
+          </div>
+          <p class="go">Go to right =></p>
+        </aside>
+
+        <!-- Panel phải: bức liễn giới thiệu -->
+        <article class="lien" aria-label="About Me">
+          <i class="cord"></i>
+          <div class="rod top"></div>
+          <div class="paper">
+            <p class="tag">ABOUT ME</p>
+            <h2 class="name">Khang Nguyen, CK</h2>
+            <p class="pen">Call me by CK or Arthur.</p>
+            <hr>
+            <p class="role">CEO - CTO <br> Application Architect </p>
+            <p class="meta"> Over 11 years of experience in Software and Sale <br> Ho Chi Minh city base </p>
+            <hr>
+            <h3>Experiences:</h3>
+            <ul>
+              <li>C Management - business man</li>
+              <li>Monolith and distributed system</li>
+              <li> Psychologico </li>
+              <li> Logistics, Health care and Fintech </li>
+            </ul>
+            <p class="art">just a traditional Artist.</p>
+            <span class="seal">Long<br>Quân</span>
+          </div>
+          <div class="rod bottom"></div>
+        </article>
+      </section>
     </div>
 
     <div id="tint"></div> <!-- lớp phủ đổi màu cả cảnh (sáng, hoàng hôn, đêm) -->
@@ -175,6 +505,8 @@
     const moon = document.getElementById("moon");
     const stars = document.getElementById("stars");
     const tint = document.getElementById("tint");
+
+    const panels = document.getElementById("panels");
 
     const WORLD_MULT = 10;     // thế giới dài bằng bao nhiêu lần màn hình
     const FOLLOW = 0.4;   // nhân vật đứng ở 40% chiều ngang màn hình (0.5 là chính giữa)
@@ -227,6 +559,19 @@
     const KEY_LUM = 215;     // chỉ điểm ảnh sáng hơn mức này mới bị xóa (giữ lại mực xám và nét đậm)
     const OVERLAP = 0.25;    // vùng hòa trộn mép để nối liền mạch
 
+    const ground = document.getElementById("ground");
+
+    const GROUND_SRC = "./assets/world/landing.png";  // đổi đúng đường dẫn
+    const GROUND_CROP_Y = 540;    // dòng bắt đầu cắt trong ảnh gốc: bỏ phần trong suốt phía trên, nhẹ bộ nhớ hơn
+    const GROUND_VH = 28;     // vùng đất cao bao nhiêu % chiều cao màn hình (lớn hơn thì đất to hơn)
+    const G_OVERLAP = 0.15;   // vùng hòa trộn mép để nối liền mạch
+
+    // Đường nhân vật đi nằm giữa hai mức này, tính theo tỉ lệ chiều cao vùng đất, đo từ đáy lên
+    const FEET_FRONT = 0.29;      // mép gần người xem nhất (thấp nhất): chân đứng ở đây khi bấm S hết cỡ
+    const FEET_BACK = 0.63;      // mép xa nhất (cao nhất): chân đứng ở đây khi bấm W hết cỡ
+
+    let gh = 0;                   // chiều cao vùng đất tính bằng px
+
 
     const img = new Image();
     let maxW = 0, maxH = 0, ready = false;
@@ -239,14 +584,25 @@
     const ctx = hero.getContext("2d");
     const frames = { idle: [], walk: [], jump: [] };
 
+    function sizeGround() {
+      gh = stage.clientHeight * GROUND_VH / 100;
+      ground.style.height = gh + "px";
+      hero.style.bottom = gh * FEET_FRONT + "px";   // nâng chân nhân vật từ đáy màn hình lên mặt đường
+    }
+
     function sizeWorld() {
       const vw = stage.clientWidth;
       worldW = vw * WORLD_MULT;
       world.style.width = worldW + "px";
+      panels.style.width = worldW + "px";          // lớp panel dài đúng bằng thế giới
       far.style.width = (vw + (worldW - vw) * PARALLAX) + "px";
     }
+
     sizeWorld();
     addEventListener("resize", sizeWorld);            // đổi kích thước cửa sổ thì tính lại
+
+    sizeGround();
+    addEventListener("resize", sizeGround);
 
     // Tìm các đoạn liên tiếp có dữ liệu; chấp nhận khoảng trống nhỏ hơn gap
     function runs(has, gap) {
@@ -382,6 +738,34 @@
       };
       im.src = src;
     }
+
+    // Cắt phần đất ra và làm mép nối liền mạch (giữ nguyên độ trong suốt của PNG)
+    function makeGroundTile(src, done) {
+      const im = new Image();
+      im.onload = () => {
+        const W = im.width, h = im.height - GROUND_CROP_Y;
+        const O = Math.round(W * G_OVERLAP), T = W - O;          // O: vùng hòa trộn, T: độ rộng mảnh ghép
+
+        const out = document.createElement("canvas"); out.width = T; out.height = h;
+        const og = out.getContext("2d");
+        og.drawImage(im, 0, GROUND_CROP_Y, W, h, 0, 0, W, h);    // vẽ phần đất, đoạn thừa bên phải tự bị cắt
+
+        const s = document.createElement("canvas"); s.width = O; s.height = h;
+        const sg = s.getContext("2d");
+        sg.drawImage(im, T, GROUND_CROP_Y, O, h, 0, 0, O, h);    // lấy đoạn vừa bị cắt
+        sg.globalCompositeOperation = "destination-in";          // dùng gradient làm mặt nạ độ trong suốt
+        const gr = sg.createLinearGradient(0, 0, O, 0);
+        gr.addColorStop(0, "rgba(0,0,0,1)");                     // mép trái: hiện rõ, khớp mép phải mảnh ghép
+        gr.addColorStop(1, "rgba(0,0,0,0)");                     // mép phải: tan vào ảnh gốc
+        sg.fillStyle = gr; sg.fillRect(0, 0, O, h);
+        og.drawImage(s, 0, 0);                                   // đặt lên đầu mảnh ghép
+
+        done(out.toDataURL("image/png"));                        // PNG để giữ độ trong suốt
+      };
+      im.src = src;
+    }
+
+    makeGroundTile(GROUND_SRC, url => ground.style.backgroundImage = `url(${url})`);
     makeSeamless("./assets/world/Background.png");   // đổi thành tên file ảnh núi của bạn
     //////////////////////////////////////////////////////////////////
 
@@ -502,7 +886,7 @@
 
       // Giới hạn trong sân khấu
       const maxX = worldW - hero.clientWidth;
-      const maxD = stage.clientHeight * DEPTH_MAX;
+      const maxD = gh * (FEET_BACK - FEET_FRONT);
       x = Math.max(0, Math.min(maxX, x));
       depth = Math.max(0, Math.min(maxD, depth));
 
@@ -528,6 +912,7 @@
       // nhân dt để tốc độ không phụ thuộc máy nhanh hay chậm
       world.style.transform = `translateX(${-camX}px)`;            // lớp gần: kéo thế giới sang trái đúng bằng camX
       far.style.transform = `translateX(${-camX * PARALLAX}px)`; // lớp xa: kéo ít hơn, tạo chiều sâu
+      panels.style.transform = `translateX(${-camX}px)`;
 
       const p = maxX > 0 ? x / maxX : 0;   // tiến độ hành trình: 0 ở đầu, 1 ở cuối thế giới
       updateSky(p);
